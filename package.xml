@@ -1,0 +1,31 @@
+<package>
+  <name>iiwa_fri_rtt</name>
+  <version>1.0.0</version>
+  <description>This package contains an Orocos component for the KUKA FRI for the LBR iiwa robot. The files listes below src_kuka are files from KUKA, these MUST NOT be distributed.
+  </description>
+  <maintainer email="enea.scioni@kuleuven.be">Enea Scioni</maintainer>
+
+  <license>LGPL</license>
+
+  <url type="website"></url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Enea Scioni</author>
+
+  <build_depend>rtt</build_depend>
+  <build_depend>rtt_ros</build_depend>
+  <build_depend>rtt_roscomm</build_depend>
+  <build_depend>orogen</build_depend>
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>rtt_motion_control_msgs</build_depend>
+  <build_depend>rtt_sensor_msgs</build_depend>
+  <build_depend>rtt_trajectory_msgs</build_depend>
+  <run_depend>rtt</run_depend>
+  <run_depend>rtt_motion_control_msgs</run_depend>
+  <run_depend>rtt_sensor_msgs</run_depend>
+  <run_depend>rtt_trajectory_msgs</run_depend>
+
+  <export>
+
+  </export>
+</package>
