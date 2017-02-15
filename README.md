@@ -20,9 +20,17 @@ git clone -b CATKIN git@gitlab.mech.kuleuven.be:rob-hardware/motion_control.git
   3. This repository
 ```
 ```
-  4. configure submodules (adds KUKA SDK)
+  4. configure submodules (adds KUKA SDK) by
+```
+git submodule init
+```
   5. (Alternative to 4), clone the kuka sdk where you want, and
-  6. 
+  6. compile the kuka fri sdk by
+```
+cd <path/to/sdk>/build/GNUMake
+make all
+```
+  7. Indicate where the kuka fri sdk has been installed
   ```
   export KUKA_FRI_SDK=<path/to/sdk>
   ```
