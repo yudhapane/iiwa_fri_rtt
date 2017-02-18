@@ -28,19 +28,53 @@ namespace FRI
 
   FRIDriver::FRIDriver(const string& name) : 
     TaskContext(name,PreOperational)
-    , prop_simulation(true)
-    , numjoints(7)
-    , port(30200)
+    , p_simulation(true)
+    , p_numjoints(7)
+    , p_fri_ip("192.170.10.3")
+    , p_fri_port(30200)
+    , p_baseframe("base_link")
     , app(connection,client)
+    , m_qdes(7)
+    , m_q_actual(7)
+    , m_qdot_actual(7)
   {
     //Adding properties
-    this->addProperty("port",port).doc("FRI Connection Port Number");
-    this->addProperty("simulation", prop_simulation);
+    this->addProperty("fri_ip",     p_fri_ip).doc("FRI IP address");
+    this->addProperty("fri_port",   p_fri_port).doc("FRI Connection Port Number");
+    this->addProperty("simulation", p_simulation);
+    this->addProperty("baseframe",  p_baseframe).doc("Frame name of the robot base");
     //Adding ports
-    this->addPort("JointPositionCommand", port_joint_pos_command);
-    this->addPort("JointVelocityCommand", port_joint_vel_command);
-    this->addPort("JointEffortCommand", port_joint_effort_command);
-    this->addPort("JointPositionMeasured", port_joint_pos_msr);
+    /// Input
+    this->addPort("event_in",              port_ein).doc("Events IN - eg supervisor");
+    this->addPort("q_desired",             port_qdes).doc("desired joint position [rad]");
+    this->addPort("JointPositionCommand",  port_joint_pos_command).doc("desired joint positions [rad]");
+    this->addPort("JointVelocityCommand",  port_joint_vel_command).doc("desired joint velocities [rad/s]");
+    this->addPort("JointEffortCommand",    port_joint_effort_command).doc("desired torque command");
+    /// Output
+    this->addPort("event_out",             port_eout).doc("Events OUT - eg faults to supervisor");
+    this->addPort("q_actual",              port_q_actual).doc("current joint positions");
+    this->addPort("qdot_actual",           port_qdot_actual).doc("current joint velocities");
+    this->addPort("JointPositionMeasured", port_joint_pos_msr).doc("current joint positions");
+    this->addPort("joint_states",          port_joint_state).doc("joint_states (ROS)");
+    
+    //Fixed size
+//     m_qdes.resize(p_numjoints);
+//     m_q_actual.resize(p_numjoints);
+//     m_qdot_actual.resize(p_numjoints);
+    m_joint_pos_command.positions.resize(p_numjoints);
+    m_joint_pos_msr.positions.resize(p_numjoints);
+    m_joint_vel_command.velocities.resize(p_numjoints);
+    m_joint_effort_command.efforts.resize(p_numjoints);
+
+    m_joint_pos_command.positions.assign(p_numjoints,0);
+    m_joint_pos_msr.positions.assign(p_numjoints,0);
+    m_joint_vel_command.velocities.assign(p_numjoints,0);
+    m_joint_effort_command.efforts.assign(p_numjoints,0);
+    
+    m_joint_states.name.resize(p_numjoints);
+    m_joint_states.position.resize(p_numjoints);
+    m_joint_states.effort.resize(p_numjoints);
+    m_joint_states.header.frame_id = p_baseframe;
   }
 
   FRIDriver::~FRIDriver()
@@ -48,17 +82,7 @@ namespace FRI
 
   bool FRIDriver::configureHook()
   {
-    m_joint_pos_command.positions.resize(numjoints);
-    m_joint_pos_msr.positions.resize(numjoints);
-    m_joint_vel_command.velocities.resize(numjoints);
-    m_joint_effort_command.efforts.resize(numjoints);
-
-    m_joint_pos_command.positions.assign(numjoints,0);
-    m_joint_pos_msr.positions.assign(numjoints,0);
-    m_joint_vel_command.velocities.assign(numjoints,0);
-    m_joint_effort_command.efforts.assign(numjoints,0);
-
-    if (prop_simulation)
+    if (p_simulation)
     {
     }
     else
@@ -66,20 +90,21 @@ namespace FRI
       Logger::In in(this->getName());
       //ClientApplication app(connection, client);
       // hard coded hostname, to be removed
-      app.connect(port, NULL);
+//       app.connect(port, NULL);
     }
     return true;
   }
 
   bool FRIDriver::startHook()
   {
-    if (prop_simulation)
+    if (p_simulation)
     {
       Logger::log() << Logger::Debug << "Entering startHook Simulation" << Logger::endl;
     }
     else
     {
       Logger::log() << Logger::Debug << "Entering startHook" << Logger::endl;
+      app.connect(p_fri_port, p_fri_ip.c_str());
       success = true;  
       Logger::In in(this->getName());
     }
@@ -88,12 +113,12 @@ namespace FRI
 
   void FRIDriver::updateHook()
   {
-    if (prop_simulation)
+    if (p_simulation)
     {
       Logger::log() << Logger::Debug << "Entering updateHook Simulation" << Logger::endl;
       // upon new data, get commanded joint position and set measured position to commanded position
       if (port_joint_pos_command.read(m_joint_pos_command) == NewData) {
-        for (unsigned int ii=0; ii<numjoints; ii++)
+        for (unsigned int ii=0; ii<p_numjoints; ii++)
           m_joint_pos_msr.positions[ii] = m_joint_pos_command.positions[ii];
         port_joint_pos_msr.write(m_joint_pos_msr);
       }
@@ -109,7 +134,9 @@ namespace FRI
     }
   }
 
-  void FRIDriver::stopHook() {}
+  void FRIDriver::stopHook() {
+    app.disconnect();
+  }
   void FRIDriver::cleanupHook() {}
 }//namespace
 

@@ -1,3 +1,4 @@
+// Copyright (C) 2017 Enea Scioni <enea.scioni@kuleuven.be>
 // Copyright (C) 2015 Wilm Decre <wilm.decre@mech.kuleuven.be>
 // structure based on KUKA template
 
