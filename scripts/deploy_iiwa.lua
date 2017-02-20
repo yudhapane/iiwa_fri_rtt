@@ -13,21 +13,31 @@ rttlib.color = true
 tc=rtt.getTC()
 depl=tc:getPeer("Deployer")
 
+
 depl:import("rtt_rospack")
 depl:import("rtt_ros")
+depl:import("rtt_sensor_msgs")
+depl:import("iiwa_fri_rtt")
 --- Loading ROS-based Libraries
 gs = rtt.provides()
 ros = gs:provides("ros")
+depl:import('rtt_rosnode')
 --
-ros:import("iiwa_fri_rtt")
-
 depl:loadComponent("iiwa", "FRI::FRIDriver")
 iiwa=depl:getPeer("iiwa")
---Configuration
-iiwa:getProperty('fri_ip'):set("192.170.10.3")
-iiwa:getProperty('fri_port'):set(30200)
-iiwa:setPeriod(0.01)
 
+
+--Configuration
+iiwa:getProperty('simulation'):set(false)
+iiwa:getProperty('fri_ip'):set("192.170.10.2")
+iiwa:getProperty('fri_port'):set(30200)
 depl:setActivity("iiwa", 0, 99, rtt.globals.ORO_SCHED_RT)
--- iiwa:configure()
+iiwa:setPeriod(0.005)
+
+iiwa:configure()
 -- iiwa:start()
+
+
+-------------------------------------------
+---- ROS Streams
+-- depl:stream("iiwa.joint_states", ros:topic("/joint_states"))

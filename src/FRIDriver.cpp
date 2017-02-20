@@ -52,15 +52,12 @@ namespace FRI
     this->addPort("JointEffortCommand",    port_joint_effort_command).doc("desired torque command");
     /// Output
     this->addPort("event_out",             port_eout).doc("Events OUT - eg faults to supervisor");
-    this->addPort("q_actual",              port_q_actual).doc("current joint positions");
-    this->addPort("qdot_actual",           port_qdot_actual).doc("current joint velocities");
-    this->addPort("JointPositionMeasured", port_joint_pos_msr).doc("current joint positions");
+    this->addPort("q_actual",              port_q_actual).doc("current joint positions [rad]");
+    this->addPort("qdot_actual",           port_qdot_actual).doc("current joint velocities [rad/s]");
+    this->addPort("JointPositionMeasured", port_joint_pos_msr).doc("current joint positions [rad]");
     this->addPort("joint_states",          port_joint_state).doc("joint_states (ROS)");
     
     //Fixed size
-//     m_qdes.resize(p_numjoints);
-//     m_q_actual.resize(p_numjoints);
-//     m_qdot_actual.resize(p_numjoints);
     m_joint_pos_command.positions.resize(p_numjoints);
     m_joint_pos_msr.positions.resize(p_numjoints);
     m_joint_vel_command.velocities.resize(p_numjoints);
@@ -75,6 +72,16 @@ namespace FRI
     m_joint_states.position.resize(p_numjoints);
     m_joint_states.effort.resize(p_numjoints);
     m_joint_states.header.frame_id = p_baseframe;
+    
+    //For now, names are created by following convention
+    //TODO make them properties
+    for (unsigned int i=0; i<p_numjoints; i++) {
+      std::ostringstream ss;
+      ss << "arm_" << i+1 << "_joint";
+      m_joint_states.name[i] = ss.str();
+    }
+    port_joint_state.setDataSample(m_joint_states);
+    
   }
 
   FRIDriver::~FRIDriver()
@@ -132,6 +139,9 @@ namespace FRI
         success = app.step();
       }  
     }
+    
+    //Writing on ports
+    port_joint_state.write(m_joint_states);
   }
 
   void FRIDriver::stopHook() {
