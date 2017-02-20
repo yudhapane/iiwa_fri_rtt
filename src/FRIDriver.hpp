@@ -64,12 +64,12 @@ namespace FRI
 
       // Internal, mem alloc
       motion_control_msgs::JointPositions  m_joint_pos_command;
-      motion_control_msgs::JointPositions  m_joint_pos_msr;
       motion_control_msgs::JointVelocities m_joint_vel_command;
       motion_control_msgs::JointEfforts    m_joint_effort_command;
       sensor_msgs::JointState              m_joint_states;
       vector<double>                       m_qdes;
       vector<double>                       m_q_actual;
+      vector<double>                       m_t_actual;
       vector<double>                       m_qdot_actual;
       
       // Port Interface
@@ -81,6 +81,7 @@ namespace FRI
       //
       OutputPort<string>                              port_eout;
       OutputPort<vector<double> >                     port_q_actual;
+      OutputPort<vector<double> >                     port_t_actual;
 	    OutputPort<vector<double> >                     port_qdot_actual;
       OutputPort<motion_control_msgs::JointPositions> port_joint_pos_msr;
       OutputPort<sensor_msgs::JointState>             port_joint_state;

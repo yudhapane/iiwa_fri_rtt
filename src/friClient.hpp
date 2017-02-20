@@ -10,24 +10,30 @@ using namespace KUKA::FRI;
 
 class friClient : public LBRClient
 {
+  public:
+    friClient(); 
+    ~friClient();
    
-public:
-   friClient(); 
-   ~friClient();
+    virtual void onStateChange(ESessionState oldState, ESessionState newState);
+    virtual void monitor();
+    virtual void waitForCommand();
+    virtual void command();
    
-   virtual void onStateChange(ESessionState oldState, ESessionState newState);
-   virtual void monitor();
-   virtual void waitForCommand();
-   virtual void command();
-   
-  static const int CART_VECTOR_DIM = 6;     //!< number of elements in a Cartesian vector
-  double m_meas_jnt_pos[LBRState::NUMBER_OF_JOINTS];
-  double m_cmd_jnt_pos[LBRState::NUMBER_OF_JOINTS];
-  double m_cmd_torques[LBRState::NUMBER_OF_JOINTS];
-  double m_cmd_wrench[CART_VECTOR_DIM];
-  //delete the following, just testing
-  double phy;
-  double stepphy;
+    //
+    void getJointPosition();
+    void getJointEffort();
+    //
+    
+    static const int CART_VECTOR_DIM = 6;     //!< number of elements in a Cartesian vector
+    double meas_jnt_pos[LBRState::NUMBER_OF_JOINTS];
+    double meas_torques[LBRState::NUMBER_OF_JOINTS];
+    double cmd_jnt_pos[LBRState::NUMBER_OF_JOINTS];
+    double cmd_torques[LBRState::NUMBER_OF_JOINTS];
+    double cmd_wrench[CART_VECTOR_DIM];
+    ESessionState current_state;
+    //delete the following, just testing
+    double phy;
+    double stepphy;
 };
 
 #endif // _FRI_CLIENT_H

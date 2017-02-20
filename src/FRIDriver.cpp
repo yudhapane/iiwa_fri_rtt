@@ -36,6 +36,7 @@ namespace FRI
     , app(connection,client)
     , m_qdes(7)
     , m_q_actual(7)
+    , m_t_actual(7)
     , m_qdot_actual(7)
   {
     //Adding properties
@@ -59,12 +60,10 @@ namespace FRI
     
     //Fixed size
     m_joint_pos_command.positions.resize(p_numjoints);
-    m_joint_pos_msr.positions.resize(p_numjoints);
     m_joint_vel_command.velocities.resize(p_numjoints);
     m_joint_effort_command.efforts.resize(p_numjoints);
 
     m_joint_pos_command.positions.assign(p_numjoints,0);
-    m_joint_pos_msr.positions.assign(p_numjoints,0);
     m_joint_vel_command.velocities.assign(p_numjoints,0);
     m_joint_effort_command.efforts.assign(p_numjoints,0);
     
@@ -124,11 +123,11 @@ namespace FRI
     {
       Logger::log() << Logger::Debug << "Entering updateHook Simulation" << Logger::endl;
       // upon new data, get commanded joint position and set measured position to commanded position
-      if (port_joint_pos_command.read(m_joint_pos_command) == NewData) {
-        for (unsigned int ii=0; ii<p_numjoints; ii++)
-          m_joint_pos_msr.positions[ii] = m_joint_pos_command.positions[ii];
-        port_joint_pos_msr.write(m_joint_pos_msr);
-      }
+//       if (port_joint_pos_command.read(m_joint_pos_command) == NewData) {
+//         for (unsigned int ii=0; ii<p_numjoints; ii++)
+//           m_joint_pos_msr.positions[ii] = m_joint_pos_command.positions[ii];
+//         port_joint_pos_msr.write(m_joint_pos_msr);
+//       }
     }
     else
     {
@@ -137,16 +136,69 @@ namespace FRI
       {
         Logger::log() << Logger::Debug << "Doing app.step()" << Logger::endl;
         success = app.step();
+        
+        //TODO:
+        // * Implementing lost sampling behaviour
+        // * check on message dimension
+        if ( client.current_state == COMMANDING_ACTIVE) {
+          switch(client.robotState().getClientCommandMode()) {
+            case POSITION: { // Position MODE
+              if (port_joint_pos_command.read(m_joint_pos_command) != NoData ) {
+                for(unsigned int i=0;i<m_joint_pos_command.positions.size();i++)
+                  client.cmd_jnt_pos[i] = m_joint_pos_command.positions[i]; //HP: order!
+              } else if ( port_qdes.read(m_qdes) != NoData ) {
+                  for(unsigned int i=0;i<m_qdes.size();i++)
+                    client.cmd_jnt_pos[i] = m_qdes[i]; //HP: order!
+              } else if ( port_joint_vel_command.read(m_joint_vel_command) != NoData) {
+                for(unsigned int i=0;i<m_joint_vel_command.velocities.size();i++)
+                  client.cmd_jnt_pos[i] += m_joint_vel_command.velocities[i]
+                    * client.robotState().getSampleTime();
+              } else if ( port_qdes.read(m_qdes) != NoData ) {
+                for(unsigned int i=0;i<p_numjoints; i++)
+                  client.cmd_jnt_pos[i] += m_qdes[i] 
+                    * client.robotState().getSampleTime();
+              }
+              break;
+            }
+            case TORQUE: {   // Torque MODE
+              if ( port_joint_effort_command.read(m_joint_effort_command) != NoData ) {
+                for(unsigned int i=0;i<m_joint_effort_command.efforts.size();i++)
+                  client.cmd_torques[i] = m_joint_effort_command.efforts[i];  //HP order!!
+              }
+              break;
+            }
+            case WRENCH: {   // Wrench MODE
+              Logger::log() << Logger::Warning << "Wrench MODE not implemented yet" << Logger::endl;
+              break;
+            }
+            default: {
+              Logger::log() << Logger::Warning << "Command Active, but no mode is valid" << Logger::endl;
+            }
+          }
+        } 
       }  
     }
     
+    client.getJointPosition();
+    client.getJointEffort();
+    for(unsigned int i=0;i<p_numjoints;i++) {
+      m_joint_states.position[i] = client.meas_jnt_pos[i];
+      // Velocities not implemented yet
+      m_joint_states.effort[i]    = client.meas_torques[i];
+    }
+    
     //Writing on ports
+    m_q_actual.assign(client.meas_jnt_pos,client.meas_jnt_pos+p_numjoints);
+    m_t_actual.assign(client.meas_torques,client.meas_torques+p_numjoints);
+    port_q_actual.write(m_q_actual);
+    port_t_actual.write(m_t_actual);
     port_joint_state.write(m_joint_states);
   }
 
   void FRIDriver::stopHook() {
     app.disconnect();
   }
+  
   void FRIDriver::cleanupHook() {}
 }//namespace
 
