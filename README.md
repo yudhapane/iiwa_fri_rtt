@@ -23,6 +23,7 @@ git clone -b CATKIN git@gitlab.mech.kuleuven.be:rob-hardware/motion_control.git
   4. configure submodules (adds KUKA SDK) by
 ```
 git submodule init
+git submodule update
 ```
   5. (Alternative to 4), clone the kuka sdk where you want, and
   6. compile the kuka fri sdk by
