@@ -22,11 +22,13 @@ class friClient : public LBRClient
     //
     void getJointPosition();
     void getJointEffort();
+    void getJointExtEffort();
     //
     
     static const int CART_VECTOR_DIM = 6;     //!< number of elements in a Cartesian vector
     double meas_jnt_pos[LBRState::NUMBER_OF_JOINTS];
     double meas_torques[LBRState::NUMBER_OF_JOINTS];
+    double meas_ext_torques[LBRState::NUMBER_OF_JOINTS];
     double cmd_jnt_pos[LBRState::NUMBER_OF_JOINTS];
     double cmd_torques[LBRState::NUMBER_OF_JOINTS];
     double cmd_wrench[CART_VECTOR_DIM];
@@ -37,3 +39,4 @@ class friClient : public LBRClient
 };
 
 #endif // _FRI_CLIENT_H
+

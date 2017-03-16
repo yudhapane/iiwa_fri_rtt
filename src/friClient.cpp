@@ -86,6 +86,10 @@ void friClient::getJointEffort() {
   memcpy(meas_torques,this->robotState().getMeasuredTorque(),LBRState::NUMBER_OF_JOINTS * sizeof(double));
 }
 
+void friClient::getJointExtEffort() {
+  memcpy(meas_ext_torques,this->robotState().getExternalTorque(),LBRState::NUMBER_OF_JOINTS * sizeof(double));
+}
+
 void friClient::monitor()
 {
    LBRClient::monitor();   

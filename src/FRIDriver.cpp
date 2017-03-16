@@ -56,6 +56,7 @@ namespace FRI
     this->addPort("q_actual",              port_q_actual).doc("current joint positions [rad]");
     this->addPort("qdot_actual",           port_qdot_actual).doc("current joint velocities [rad/s]");
     this->addPort("JointPositionMeasured", port_joint_pos_msr).doc("current joint positions [rad]");
+    this->addPort("JointExternalEffort",   port_joint_ext_jnt).doc("external torque on joints [Nm]");
     this->addPort("joint_states",          port_joint_state).doc("joint_states (ROS)");
     
     //Fixed size
@@ -66,6 +67,9 @@ namespace FRI
     m_joint_pos_command.positions.assign(p_numjoints,0);
     m_joint_vel_command.velocities.assign(p_numjoints,0);
     m_joint_effort_command.efforts.assign(p_numjoints,0);
+    
+    m_t_ext.names.resize(p_numjoints);
+    m_t_ext.efforts.assign(p_numjoints,0);
     
     m_joint_states.name.resize(p_numjoints);
     m_joint_states.position.resize(p_numjoints);
@@ -78,6 +82,7 @@ namespace FRI
       std::ostringstream ss;
       ss << "arm_" << i+1 << "_joint";
       m_joint_states.name[i] = ss.str();
+      m_t_ext.names[i]        = ss.str();
     }
     port_joint_state.setDataSample(m_joint_states);
     
@@ -186,13 +191,16 @@ namespace FRI
       // Velocities not implemented yet
       m_joint_states.effort[i]    = client.meas_torques[i];
     }
+    client.getJointExtEffort();
     
     //Writing on ports
     m_q_actual.assign(client.meas_jnt_pos,client.meas_jnt_pos+p_numjoints);
     m_t_actual.assign(client.meas_torques,client.meas_torques+p_numjoints);
+    m_t_ext.efforts.assign(client.meas_ext_torques,client.meas_ext_torques+p_numjoints);
     port_q_actual.write(m_q_actual);
     port_t_actual.write(m_t_actual);
     port_joint_state.write(m_joint_states);
+    port_joint_ext_jnt.write(m_t_ext);
   }
 
   void FRIDriver::stopHook() {
