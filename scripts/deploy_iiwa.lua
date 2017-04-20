@@ -30,7 +30,7 @@ iiwa=depl:getPeer("iiwa")
 
 --Configuration
 iiwa:getProperty('simulation'):set(false)
-iiwa:getProperty('fri_ip'):set("192.170.10.2")
+iiwa:getProperty('fri_ip'):set("192.168.1.16")
 iiwa:getProperty('fri_port'):set(30200)
 depl:setActivity("iiwa", 0, 99, rtt.globals.ORO_SCHED_RT)
 iiwa:setPeriod(0.005)
