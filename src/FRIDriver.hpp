@@ -59,6 +59,7 @@ namespace FRI
       string             p_fri_ip;
       unsigned int       p_fri_port;
       string             p_baseframe;
+      string             p_effort_origin;
       
       bool success;
 

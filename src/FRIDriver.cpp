@@ -33,6 +33,7 @@ namespace FRI
     , p_fri_ip("192.170.10.3")
     , p_fri_port(30200)
     , p_baseframe("base_link")
+    , p_effort_origin("internal")
     , app(connection,client)
     , m_qdes(7)
     , m_q_actual(7)
@@ -44,6 +45,7 @@ namespace FRI
     this->addProperty("fri_port",   p_fri_port).doc("FRI Connection Port Number");
     this->addProperty("simulation", p_simulation);
     this->addProperty("baseframe",  p_baseframe).doc("Frame name of the robot base");
+    this->addProperty("effort_origin", p_effort_origin).doc("Origin of the joint effort measurements ('internal' or 'external')");
     //Adding ports
     /// Input
     this->addPort("event_in",              port_ein).doc("Events IN - eg supervisor");
@@ -186,12 +188,17 @@ namespace FRI
     
     client.getJointPosition();
     client.getJointEffort();
+    client.getJointExtEffort();
     for(unsigned int i=0;i<p_numjoints;i++) {
       m_joint_states.position[i] = client.meas_jnt_pos[i];
       // Velocities not implemented yet
-      m_joint_states.effort[i]    = client.meas_torques[i];
+      if (p_effort_origin == "internal")
+        m_joint_states.effort[i]    = client.meas_torques[i];
+      else if(p_effort_origin == "external")
+	m_joint_states.effort[i]    = client.meas_ext_torques[i];
+      else
+	Logger::log() << Logger::Error << "Effort Origin property not recognised (set: '"<<p_effort_origin<<"', must be either 'internal' or 'external')" << Logger::endl;
     }
-    client.getJointExtEffort();
     
     //Writing on ports
     m_q_actual.assign(client.meas_jnt_pos,client.meas_jnt_pos+p_numjoints);
