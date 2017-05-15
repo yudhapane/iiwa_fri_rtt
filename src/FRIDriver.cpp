@@ -139,11 +139,12 @@ namespace FRI
     else
     {
       Logger::log() << Logger::Debug << "Entering updateHook" << Logger::endl;
-      if (success)
-      {
-        Logger::log() << Logger::Debug << "Doing app.step()" << Logger::endl;
+      if (success) {
+	Logger::log() << Logger::Debug << "Doing app.step()" << Logger::endl;
         success = app.step();
-        
+      }
+      if (success) /* everything went fine, just go ahead*/
+      { 
         //TODO:
         // * Implementing lost sampling behaviour
         // * check on message dimension
@@ -183,6 +184,14 @@ namespace FRI
             }
           }
         } 
+      }
+      else {
+        Logger::log() << Logger::Error << "A fault occurred, since state ("<<client.current_state<<") is not ("<<COMMANDING_ACTIVE<<"), restarting procedure NOW!" << Logger::endl;
+        app.disconnect();
+        app.connect(p_fri_port, p_fri_ip.c_str());
+        success = true;
+// 	success = false;
+	return; /*skip the rest step */
       }  
     }
     
@@ -208,6 +217,8 @@ namespace FRI
     port_t_actual.write(m_t_actual);
     port_joint_state.write(m_joint_states);
     port_joint_ext_jnt.write(m_t_ext);
+    
+    this->trigger();
   }
 
   void FRIDriver::stopHook() {
