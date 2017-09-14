@@ -31,6 +31,10 @@ git submodule update
 cd <path/to/sdk>/build/GNUMake
 make all
 ```
+     if compilation fails, do
+ ``` 
+ make clean
+ ```
   7. Indicate where the kuka fri sdk has been installed
   ```
   export KUKA_FRI_SDK=<path/to/sdk>
