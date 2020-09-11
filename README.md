@@ -31,12 +31,12 @@ git submodule update
 cd <path/to/sdk>/build/GNUMake
 make all
 ```
-.. if compilation fails, do
+   if compilation fails, do
 
 ``` 
  make clean
  ```
-.. and re-compile
+   and re-compile
   
   4. Indicate where the kuka fri sdk has been installed
   ```
@@ -47,4 +47,3 @@ make all
   cd ~/catkin_ws/src
   catkin_make
   ```
-
