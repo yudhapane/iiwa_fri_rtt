@@ -31,7 +31,7 @@ git submodule update
 cd <path/to/sdk>/build/GNUMake
 make all
 ```
-   if compilation fails, do
+   ... if compilation fails, do
 
 ``` 
  make clean
@@ -42,7 +42,8 @@ make all
   ```
   export KUKA_FRI_SDK=<path/to/sdk>
   ```
-  5.Compile the package e.g. with catkin
+  
+  5. Compile the package e.g. with catkin
   ```
   cd ~/catkin_ws/src
   catkin_make
