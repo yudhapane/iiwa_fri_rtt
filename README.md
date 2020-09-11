@@ -31,7 +31,7 @@ git submodule update
 cd <path/to/sdk>/build/GNUMake
 make all
 ```
-   ... if compilation fails, do
+   if compilation fails, do
 
 ``` 
  make clean
