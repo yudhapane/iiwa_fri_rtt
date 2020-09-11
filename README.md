@@ -19,8 +19,7 @@ git clone -b CATKIN git@gitlab.mech.kuleuven.be:rob-hardware/motion_control.git
 ```
 
   3. This repository
-```
-```
+
   4. configure submodules (adds KUKA SDK) by
 ```
 git submodule init
