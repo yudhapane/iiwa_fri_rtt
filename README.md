@@ -15,7 +15,7 @@ OROCOS-rtt FRI for KUKA IIWA (Sunrise.OS)
   1. Install OROCOS installation
   2. [motion control package](https://gitlab.kuleuven.be/rob-hardware/motion_control/-/tree/CATKIN)
 ```
-git clone -b CATKIN git@gitlab.mech.kuleuven.be:rob-hardware/motion_control.git
+git clone -b CATKIN git@gitlab.kuleuven.be:rob-hardware/motion_control.git
 ```
   3. This repository
 
