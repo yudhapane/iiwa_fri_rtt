@@ -1,3 +1,4 @@
 [submodule "kuka_fri_sdk"]
 	path = kuka_fri_sdk
 	url = git@gitlab.kuleuven.be:rob-hardware/kuka_fri_sdk.git
+
